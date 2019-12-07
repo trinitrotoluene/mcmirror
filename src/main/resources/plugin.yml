@@ -1,0 +1,17 @@
+name: McMirror
+version: 1.0.0
+author: twonglebat
+main: dev.trinitrotoluene.mcmirror.PluginCore
+api-version: 1.14
+
+commands:
+  mcenable:
+    usage: /mcenable
+    permission: mcmirror.*
+  mcdisable:
+    usage: /mcdisable
+    permission: mcmirror.*
+
+permissions:
+  mcmirror.*:
+    default: op
