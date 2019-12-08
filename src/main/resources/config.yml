@@ -1,3 +1,31 @@
-prefix: [D]
-token: <bot token>
-webhook: <webhook url>
+# This determines the format of Discord messages mirrored to Minecraft.
+# "user" and "message" will be expanded to username and message content respectively.
+# You can use color codes.
+
+format: "&7[D]&f <user> message"
+
+# Set the token of the bot account to use for listening to Discord messages.
+# If unset, the plugin will print a console warning- but the Minecraft -> Discord mirroring will work fine,
+# provided you supplied a valid Webhook URL.
+
+token: "YOUR_TOKEN"
+
+# Provide a list of Webhook URLs (look up how to create these if you don't already know) that the bot will cycle
+# through when posting Minecraft messages to Discord.
+# You can use as many as you want, if you have a high message rate this becomes necessary due to rate-limiting.
+
+webhooks:
+  - "WEBHOOK_URL"
+
+# List all *Discord* role IDs that you'd like to have access to the mirroring feature.
+# Leave this empty and @everyone will be mirrored automatically.
+# If you want to restrict Minecraft -> Discord mirroring, use the mcmirror.mirror permission. (Defaults to true)
+
+roles:
+  # - "652853083176697866"
+
+# List all *Discord* channels that you'd like to mirror messages from to Minecraft.
+# By default the bot will mirror messages from all channels it has access to, which is often undesirable behaviour.
+
+channels:
+  # - "652853083176696794"
