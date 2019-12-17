@@ -1,6 +1,6 @@
 package dev.trinitrotoluene.mcmirror;
 
-public final class Ticker {
+final class Ticker {
     private final int _maxVal;
     private int _count = 0;
 
