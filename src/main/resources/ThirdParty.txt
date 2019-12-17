@@ -1,0 +1,3 @@
+Third Party Software Used Under License:
+
+- Discord4J (https://github.com/Discord4J/Discord4J) https://github.com/Discord4J/Discord4J/blob/master/LICENSE.txt
