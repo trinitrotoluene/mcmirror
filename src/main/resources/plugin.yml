@@ -27,14 +27,33 @@ commands:
     usage: /mcstatus
     permission: mcmirror.status
 
-
 permissions:
+# Aggregated nodes
   mcmirror.*:
     default: op
     children:
-      mirrorstatus: true
+      mcmirror.manage: true
+      mcmirror.mirror: true
+  mcmirror.manage:
+    default: op
+    children:
+      mcmirror.enable: true
+      mcmirror.disable: true
+      mcmirror.disconnect: true
+      mcmirror.connect: true
+      mcmirror.status: true
 
+# Management nodes
+  mcmirror.enable:
+    default: op
+  mcmirror.disable:
+    default: op
+  mcmirror.disconnect:
+    default: op
+  mcmirror.connect:
+    default: op
   mcmirror.status:
     default: op
+# Public nodes
   mcmirror.mirror:
     default: true

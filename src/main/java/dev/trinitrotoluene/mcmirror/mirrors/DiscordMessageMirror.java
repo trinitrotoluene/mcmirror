@@ -1,5 +1,6 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.mirrors;
 
+import dev.trinitrotoluene.mcmirror.MirrorPlugin;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
@@ -10,25 +11,25 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
-class DiscordMessageMirror {
+public class DiscordMessageMirror {
     private MirrorPlugin _plugin;
     private DiscordClient _client;
     private volatile boolean _enabled;
 
     private final MessageCallback _callback;
 
-    DiscordMessageMirror() {
+    public DiscordMessageMirror() {
         this._enabled = true;
         this._plugin = JavaPlugin.getPlugin(MirrorPlugin.class);
 
         this._callback = new DiscordMessageCallback();
     }
 
-    void setEnabled(boolean value) {
+    public void setEnabled(boolean value) {
         this._enabled = value;
     }
 
-    String getStatus() {
+    public String getStatus() {
         if (this._client == null)
             return ChatColor.RED + "Client failed to initialise.";
 
@@ -40,7 +41,7 @@ class DiscordMessageMirror {
         }
     }
 
-    void bindAndBroadcast() {
+    public void bindAndBroadcast() {
         Bukkit.getScheduler().runTaskAsynchronously(this._plugin, () -> {
             this._client = new DiscordClientBuilder(Objects.requireNonNull(this._plugin.getConfig().getString("token")))
                     .build();
@@ -81,7 +82,7 @@ class DiscordMessageMirror {
         });
     }
 
-    void close() {
+    public void close() {
         if (this._client != null)
             this._client.logout().block();
 

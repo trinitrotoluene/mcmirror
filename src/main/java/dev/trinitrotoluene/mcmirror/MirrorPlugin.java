@@ -1,25 +1,27 @@
 package dev.trinitrotoluene.mcmirror;
 
 import club.minnced.discord.webhook.WebhookClient;
+import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
+import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class MirrorPlugin extends JavaPlugin {
+public class MirrorPlugin extends JavaPlugin {
     private DiscordMessageMirror DiscordMirror;
     private MinecraftMessageMirror MinecraftMirror;
 
-    DiscordMessageMirror getDiscordMessageMirror() {
+    public DiscordMessageMirror getDiscordMessageMirror() {
         return this.DiscordMirror;
     }
 
-    void setDiscordMessageMirror(DiscordMessageMirror value) {
+    public void setDiscordMessageMirror(DiscordMessageMirror value) {
         this.DiscordMirror = value;
     }
 
-    MinecraftMessageMirror getMinecraftMessageMirror() {
+    public MinecraftMessageMirror getMinecraftMessageMirror() {
         return this.MinecraftMirror;
     }
 
@@ -27,11 +29,11 @@ class MirrorPlugin extends JavaPlugin {
         this.MinecraftMirror = value;
     }
 
-    List<String> getWhitelistedRoles() {
+    public List<String> getWhitelistedRoles() {
         return getConfig().getStringList("roles");
     }
 
-    List<String> getWhitelistedChannels() {
+    public List<String> getWhitelistedChannels() {
         return getConfig().getStringList("channels");
     }
 
@@ -69,13 +71,9 @@ class MirrorPlugin extends JavaPlugin {
     }
 
     private void registerCommands() {
-        // TODO: Autocompletion, break these out into subcommands.
         var executor = new CommandListener();
-        this.getCommand("mirrorenable").setExecutor(executor);
-        this.getCommand("mirrordisable").setExecutor(executor);
-        this.getCommand("mirrorkill").setExecutor(executor);
-        this.getCommand("mirrorconnect").setExecutor(executor);
-        this.getCommand("mirrorstatus").setExecutor(executor);
-
+        var completer = new PluginTabCompleter();
+        this.getCommand("mirror").setExecutor(executor);
+        this.getCommand("mirror").setTabCompleter(completer);
     }
 }
