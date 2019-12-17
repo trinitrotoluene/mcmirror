@@ -1,5 +1,7 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.mirrors;
 
+import dev.trinitrotoluene.mcmirror.MirrorPlugin;
+import dev.trinitrotoluene.mcmirror.mirrors.MessageCallback;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

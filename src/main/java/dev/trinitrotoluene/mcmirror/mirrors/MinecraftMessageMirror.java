@@ -1,7 +1,8 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.mirrors;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import dev.trinitrotoluene.mcmirror.util.Ticker;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,17 +18,17 @@ public class MinecraftMessageMirror implements Listener {
     private final Ticker _ticker;
     private volatile boolean _enabled;
 
-    MinecraftMessageMirror(ArrayList<WebhookClient> cluster) {
+    public MinecraftMessageMirror(ArrayList<WebhookClient> cluster) {
         this._cluster = cluster;
         this._ticker = new Ticker(this._cluster.size());
         this._enabled = true;
     }
 
-    void setEnabled(Boolean value) {
+    public void setEnabled(Boolean value) {
         this._enabled = value;
     }
 
-    void close() {
+    public void close() {
         this.setEnabled(false);
         for (var hook : this._cluster) {
             hook.close();
