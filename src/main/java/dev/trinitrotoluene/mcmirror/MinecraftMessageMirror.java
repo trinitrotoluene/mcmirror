@@ -17,17 +17,17 @@ public class MinecraftMessageMirror implements Listener {
     private final Ticker _ticker;
     private volatile boolean _enabled;
 
-    public MinecraftMessageMirror(ArrayList<WebhookClient> cluster) {
+    MinecraftMessageMirror(ArrayList<WebhookClient> cluster) {
         this._cluster = cluster;
         this._ticker = new Ticker(this._cluster.size());
         this._enabled = true;
     }
 
-    public void setEnabled(Boolean value) {
+    void setEnabled(Boolean value) {
         this._enabled = value;
     }
 
-    public void close() {
+    void close() {
         this.setEnabled(false);
         for (var hook : this._cluster) {
             hook.close();
