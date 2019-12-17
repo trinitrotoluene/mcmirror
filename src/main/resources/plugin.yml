@@ -1,7 +1,7 @@
 name: McMirror
-version: 2.0.0
+version: 3.0.0
 author: twonglebat
-main: dev.trinitrotoluene.mcmirror.PluginCore
+main: dev.trinitrotoluene.mcmirror.MirrorPlugin
 api-version: 1.14
 description: A no-nonsense and robust Minecraft <-> Discord bridge.
 
