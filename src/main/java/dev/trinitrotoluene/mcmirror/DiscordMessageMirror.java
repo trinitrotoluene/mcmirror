@@ -19,7 +19,8 @@ public class DiscordMessageMirror {
             message.getMessage().getContent().ifPresent(content -> {
                 String mirroredMessage = Objects.requireNonNull(this.Plugin.getConfig().getString("format"))
                         .replace("user", member.getDisplayName())
-                        .replace("message", content);
+                        .replace("message", content)
+                        .replace("@", "@\u200b");
                 mirroredMessage = ChatColor.translateAlternateColorCodes('&', mirroredMessage);
                 Bukkit.broadcastMessage(mirroredMessage);
             });
