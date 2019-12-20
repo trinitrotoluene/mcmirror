@@ -12,8 +12,8 @@ public final class DependencyInjectionTests {
         try {
             //noinspection UnnecessaryBoxing
             var services = new ServiceCollection()
-                    .addSingleton(Integer.valueOf(2))
-                    .addSingleton(() -> "Hello, World!")
+                    .addSingleton(Integer.class, Integer.valueOf(2))
+                    .addSingleton(String.class, () -> "Hello, World!")
                     .build();
 
             assertEquals(Integer.valueOf(2), services.getService(Integer.class));
@@ -29,8 +29,8 @@ public final class DependencyInjectionTests {
         try {
             //noinspection UnnecessaryBoxing
             var services = new ServiceCollection()
-                    .addSingleton(Integer.valueOf(2))
-                    .addSingleton("Hello, World!")
+                    .addSingleton(Integer.class, Integer.valueOf(2))
+                    .addSingleton(String.class, "Hello, World!")
                     .addSingleton(DummyComplexService.class)
                     .build();
 
