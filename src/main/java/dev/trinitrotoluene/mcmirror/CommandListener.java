@@ -1,5 +1,6 @@
 package dev.trinitrotoluene.mcmirror;
 
+import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
