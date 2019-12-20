@@ -1,10 +1,14 @@
 package dev.trinitrotoluene.mcmirror.util;
 
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-public class ServiceCollection {
+public final class ServiceCollection {
     private final Map<Class, ServiceDescriptor> _services;
 
     public ServiceCollection() {
@@ -12,8 +16,7 @@ public class ServiceCollection {
     }
 
     public ServiceCollection addSingleton(Class type) {
-        // TODO: Check for @Inject annotation when selecting ctor, default to the one with the most parameters.
-        var ctor = type.getConstructors()[0];
+        var ctor = findBestCtor(type);
         var descriptor = new SingletonServiceDescriptor(ctor);
 
         this._services.put(type, descriptor);
@@ -35,7 +38,7 @@ public class ServiceCollection {
     }
 
     public ServiceCollection addTransient(Class type) {
-        var ctor = type.getConstructors()[0];
+        var ctor = findBestCtor(type);
         var descriptor = new TransientServiceDescriptor(ctor);
 
         this._services.put(type, descriptor);
@@ -49,7 +52,34 @@ public class ServiceCollection {
         return this;
     }
 
-    public IServiceProvider build() throws MissingDependencyException {
+    public IServiceProvider build() throws MissingDependencyException, CircularDependencyException {
+        for (var service : this._services.entrySet()) {
+            // Check every dependency to see whether it depends on the current service
+            for (var dependency : service.getValue().getDependencies()) {
+                // If the dependency is not present in the service collection, it is missing
+                if (!this._services.containsKey(dependency)) {
+                    throw new MissingDependencyException();
+                }
+
+                // If the dependency exists **and** its dependencies include the current service, it is circular
+                if (Arrays.asList(this._services.get(dependency).getDependencies()).contains(service.getKey())) {
+                    throw new CircularDependencyException();
+                }
+            }
+        }
+
         return new ServiceProvider(this._services);
+    }
+
+    private Constructor findBestCtor(Class type) {
+        var injectCtor = Arrays.stream(type.getConstructors())
+                .filter(c -> c.isAnnotationPresent(Inject.class))
+                .collect(Collectors.toList());
+
+        if (injectCtor.size() == 1) return injectCtor.get(0);
+
+        return Arrays.stream(type.getConstructors())
+                .max(Comparator.comparingInt(Constructor::getParameterCount))
+                .orElseThrow();
     }
 }

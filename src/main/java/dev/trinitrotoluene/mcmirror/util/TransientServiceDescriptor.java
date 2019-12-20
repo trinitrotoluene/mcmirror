@@ -17,6 +17,14 @@ public class TransientServiceDescriptor extends ServiceDescriptor {
     }
 
     @Override
+    public Class[] getDependencies() {
+        if (this._ctor != null)
+            return this._ctor.getParameterTypes();
+
+        return super.getDependencies();
+    }
+
+    @Override
     public synchronized Object getInstance(IServiceProvider services) {
         if (this._createInstance != null)
             return this._createInstance.get();

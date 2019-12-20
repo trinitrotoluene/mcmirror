@@ -3,7 +3,7 @@ package dev.trinitrotoluene.mcmirror.util;
 import java.util.Map;
 
 /** @noinspection unchecked*/
-public class ServiceProvider implements IServiceProvider {
+public final class ServiceProvider implements IServiceProvider {
     private final Map<Class, ServiceDescriptor> _serviceDescriptors;
 
     ServiceProvider(Map<Class, ServiceDescriptor> serviceDescriptors) {
