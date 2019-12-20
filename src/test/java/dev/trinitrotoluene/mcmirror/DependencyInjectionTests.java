@@ -1,7 +1,9 @@
 package dev.trinitrotoluene.mcmirror;
 
+import dev.trinitrotoluene.mcmirror.util.CircularDependencyException;
 import dev.trinitrotoluene.mcmirror.util.MissingDependencyException;
 import dev.trinitrotoluene.mcmirror.util.ServiceCollection;
+import dev.trinitrotoluene.mcmirror.util.ServiceNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +21,7 @@ public final class DependencyInjectionTests {
             assertEquals(Integer.valueOf(2), services.getService(Integer.class));
             assertEquals("Hello, World!", services.getService(String.class));
         }
-        catch (MissingDependencyException e) {
+        catch (MissingDependencyException | CircularDependencyException e) {
             fail();
         }
     }
@@ -34,18 +36,49 @@ public final class DependencyInjectionTests {
                     .addSingleton(DummyComplexService.class)
                     .build();
 
-            assertNotNull(services.getService(DummyComplexService.class));
+            DummyComplexService service;
+            assertNotNull(service = services.getService(DummyComplexService.class));
+            assertTrue(service.usedComplexCtor());
         }
-        catch (MissingDependencyException ex) {
+        catch (MissingDependencyException | CircularDependencyException e) {
             fail();
         }
     }
 
     @Test
-    void ensureThrowsWhenDependenciesMissing() {
-        var services = new ServiceCollection().addSingleton(DummyComplexService.class);
+    void ensureUsedAnnotatedCtor() {
+        try {
+            var services = new ServiceCollection()
+                    .addSingleton(String.class, "Test")
+                    .addSingleton(MarkInjectDummyService.class)
+                    .build();
+
+            MarkInjectDummyService service;
+            assertNotNull(service = services.getService(MarkInjectDummyService.class));
+            assertTrue(service.wasCorrectlyUsed());
+
+        }
+        catch (MissingDependencyException | CircularDependencyException e) {
+            fail();
+        }
+
+    }
+
+    @Test
+    void ensureThrowsMissingDependencyInjection() {
+        var services = new ServiceCollection()
+                .addSingleton(ServiceA.class);
 
         assertThrows(MissingDependencyException.class, services::build);
+    }
+
+    @Test
+    void ensureThrowsCircularDependencyInjection() {
+        var services = new ServiceCollection()
+                .addSingleton(ServiceA.class)
+                .addSingleton(ServiceB.class);
+
+        assertThrows(CircularDependencyException.class, services::build);
     }
 
     @Test
@@ -55,7 +88,7 @@ public final class DependencyInjectionTests {
 
             assertNotNull(services.build());
         }
-        catch (MissingDependencyException e) {
+        catch (MissingDependencyException | CircularDependencyException e) {
             fail();
         }
     }

@@ -22,6 +22,14 @@ public final class SingletonServiceDescriptor extends ServiceDescriptor {
     }
 
     @Override
+    public Class[] getDependencies() {
+        if (this._ctor != null)
+            return this._ctor.getParameterTypes();
+
+        return super.getDependencies();
+    }
+
+    @Override
     public synchronized Object getInstance(IServiceProvider services) {
         if (this._instance != null)
             return this._instance;

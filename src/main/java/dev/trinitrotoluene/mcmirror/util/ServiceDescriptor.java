@@ -9,6 +9,10 @@ public abstract class ServiceDescriptor {
 
     public abstract Object getInstance(IServiceProvider services);
 
+    public Class[] getDependencies() {
+        return new Class[0];
+    }
+
     protected static Object createInstance(Constructor ctor, IServiceProvider services) throws IllegalAccessException, InvocationTargetException, InstantiationException {
         var params = new Object[ctor.getParameterCount()];
 
