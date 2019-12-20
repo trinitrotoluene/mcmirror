@@ -1,15 +1,28 @@
 package dev.trinitrotoluene.mcmirror.util;
 
-import java.lang.reflect.Type;
+import java.util.Map;
 
+/** @noinspection unchecked*/
 public class ServiceProvider implements IServiceProvider {
-    @Override
-    public <T> T getRequiredService(Type type) throws ServiceNotFoundException {
-        return null;
+    private final Map<Class, ServiceDescriptor> _serviceDescriptors;
+
+    ServiceProvider(Map<Class, ServiceDescriptor> serviceDescriptors) {
+        this._serviceDescriptors = serviceDescriptors;
     }
 
     @Override
-    public <T> T getService(Type type) {
-        return null;
+    public <T> T getRequiredService(Class type) throws ServiceNotFoundException {
+        if (!this._serviceDescriptors.containsKey(type))
+            throw new ServiceNotFoundException();
+
+        return (T) this._serviceDescriptors.get(type).getInstance(this);
+    }
+
+    @Override
+    public <T> T getService(Class type) {
+        if (!this._serviceDescriptors.containsKey(type))
+            return null;
+
+        return (T) this._serviceDescriptors.get(type).getInstance(this);
     }
 }
