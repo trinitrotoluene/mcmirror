@@ -23,7 +23,6 @@ public class DiscordMessageCallback implements MessageCallback {
                     .replace("user", member.getDisplayName())
                     .replace("message", content)
                     .replace("@", "@\u200b");
-            mirroredMessage = ChatColor.translateAlternateColorCodes('&', mirroredMessage);
             Bukkit.broadcastMessage(mirroredMessage);
         }));
     }
