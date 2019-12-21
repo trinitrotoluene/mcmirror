@@ -12,17 +12,24 @@ public final class ServiceProvider implements IServiceProvider {
 
     @Override
     public <T> T getRequiredService(Class type) throws ServiceNotFoundException {
-        if (!this._serviceDescriptors.containsKey(type))
-            throw new ServiceNotFoundException();
+        var descriptor = this._serviceDescriptors.entrySet()
+                .stream()
+                .filter(kvp -> type.isAssignableFrom(kvp.getKey()))
+                .findFirst()
+                .orElseThrow(() -> new ServiceNotFoundException(String.format("Could not resolve a service matching dependency %s", type.getName())))
+                .getValue();
 
-        return (T) this._serviceDescriptors.get(type).getInstance(this);
+        return (T) descriptor.getInstance(this);
     }
 
     @Override
     public <T> T getService(Class type) {
-        if (!this._serviceDescriptors.containsKey(type))
-            return null;
+        var descriptor = this._serviceDescriptors.entrySet().stream().filter(kvp -> type.isAssignableFrom(kvp.getKey()))
+                .findFirst()
+                .orElse(null);
 
-        return (T) this._serviceDescriptors.get(type).getInstance(this);
+        if (descriptor == null) return null;
+
+        return (T) descriptor.getValue().getInstance(this);
     }
 }

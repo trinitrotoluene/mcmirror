@@ -80,6 +80,7 @@ public final class ServiceCollection {
 
         return Arrays.stream(type.getConstructors())
                 .max(Comparator.comparingInt(Constructor::getParameterCount))
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException(String.format("Could not resolve a public ctor for service %s",
+                        type.getName())));
     }
 }

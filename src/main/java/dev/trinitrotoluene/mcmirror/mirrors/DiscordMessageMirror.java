@@ -56,7 +56,7 @@ public class DiscordMessageMirror {
                         return content.length() > 0 && content.length() <= 500;
                     })
                     .filter(msg -> {
-                        var whitelist = this._plugin.getWhitelistedRoles();
+                        var whitelist = this._plugin.getConfig().getStringList("roles");
                         if (whitelist.size() == 0)
                             return true;
                         else
@@ -69,7 +69,7 @@ public class DiscordMessageMirror {
                             });
                     })
                     .filter(msg -> {
-                        var whitelist = this._plugin.getWhitelistedChannels();
+                        var whitelist = this._plugin.getConfig().getStringList("channels");
                         if (whitelist.size() == 0)
                             return true;
                         else
@@ -80,6 +80,10 @@ public class DiscordMessageMirror {
 
             this._client.login().block();
         });
+    }
+
+    public DiscordClient getClient() {
+        return this._client;
     }
 
     public void close() {

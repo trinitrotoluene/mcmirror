@@ -6,6 +6,9 @@ api-version: 1.14
 description: A no-nonsense and robust Minecraft <-> Discord bridge.
 
 commands:
+  mirror:
+    description: Root command for managing MC Mirror.
+    usage: /mirror help
   mirrorenable:
     description: Enable message mirroring.
     usage: /mcenable

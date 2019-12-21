@@ -1,58 +1,47 @@
 package dev.trinitrotoluene.mcmirror;
 
-import club.minnced.discord.webhook.WebhookClient;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
+import dev.trinitrotoluene.mcmirror.util.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MirrorPlugin extends JavaPlugin {
-    private DiscordMessageMirror DiscordMirror;
-    private MinecraftMessageMirror MinecraftMirror;
-
-    public DiscordMessageMirror getDiscordMessageMirror() {
-        return this.DiscordMirror;
-    }
-
-    public void setDiscordMessageMirror(DiscordMessageMirror value) {
-        this.DiscordMirror = value;
-    }
-
-    public MinecraftMessageMirror getMinecraftMessageMirror() {
-        return this.MinecraftMirror;
-    }
-
-    public void setMinecraftMessageMirror(MinecraftMessageMirror value) {
-        this.MinecraftMirror = value;
-    }
-
-    public List<String> getWhitelistedRoles() {
-        return getConfig().getStringList("roles");
-    }
-
-    public List<String> getWhitelistedChannels() {
-        return getConfig().getStringList("channels");
-    }
+    private IServiceProvider _services;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        var webhookUrls = getConfig().getStringList("webhooks");
+        try {
+            this._services = new ServiceCollection()
+                    .addSingleton(FileConfiguration.class, this.getConfig())
+                    .addSingleton(MinecraftMessageMirror.class)
+                    .addSingleton(DiscordMessageMirror.class)
+                    .addSingleton(WebhookProvider.class)
+                    .addSingleton(MirrorPlugin.class, this)
+                    .addSingleton(CommandListener.class)
+                    .addSingleton(PluginTabCompleter.class)
+                    .build();
+        }
+        catch (MissingDependencyException e) {
+            getLogger().severe("Failed to resolve a core dependency!");
+        }
+        catch (CircularDependencyException e) {
+            getLogger().severe("A circular dependency was found while attempting to build the service provider.");
+        }
 
-        var hookList = new ArrayList<WebhookClient>();
-        for (var url : webhookUrls)
-            hookList.add(WebhookClient.withUrl(url));
-        this.MinecraftMirror = new MinecraftMessageMirror(hookList);
+        try {
+            MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
+            this.getServer().getPluginManager().registerEvents(mc, this);
 
-        getServer().getPluginManager().registerEvents(this.MinecraftMirror, this);
-        getLogger().info(String.format("Minecraft -> Discord online with %s hooks", webhookUrls.size()));
-
-        this.DiscordMirror = new DiscordMessageMirror();
-        this.DiscordMirror.bindAndBroadcast();
+            DiscordMessageMirror dc = this._services.getRequiredService(DiscordMessageMirror.class);
+            dc.bindAndBroadcast();
+        }
+        catch (ServiceNotFoundException e) {
+            getLogger().severe("Couldn't load ServiceManager!");
+        }
 
         registerCommands();
     }
@@ -61,19 +50,23 @@ public class MirrorPlugin extends JavaPlugin {
     public void onDisable() {
         HandlerList.unregisterAll(this);
 
-        if (this.MinecraftMirror != null)
-            this.MinecraftMirror.close();
-        if (this.DiscordMirror != null)
-            this.DiscordMirror.close();
+        try {
+            MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
+            DiscordMessageMirror dc = this._services.getRequiredService(DiscordMessageMirror.class);
 
-        this.DiscordMirror = null;
-        this.MinecraftMirror = null;
+            mc.close();
+            dc.close();
+        }
+        catch (ServiceNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private void registerCommands() {
-        var executor = new CommandListener();
-        var completer = new PluginTabCompleter();
-        this.getCommand("mirror").setExecutor(executor);
+        CommandListener listener = this._services.getService(CommandListener.class);
+        PluginTabCompleter completer = this._services.getService(PluginTabCompleter.class);
+
+        this.getCommand("mirror").setExecutor(listener);
         this.getCommand("mirror").setTabCompleter(completer);
     }
 }

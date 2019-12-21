@@ -1,8 +1,7 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
-import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
-import dev.trinitrotoluene.mcmirror.util.Ticker;
+import dev.trinitrotoluene.mcmirror.WebhookProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,16 +10,12 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
-
 public class MinecraftMessageMirror implements Listener {
-    private final ArrayList<WebhookClient> _cluster;
-    private final Ticker _ticker;
     private volatile boolean _enabled;
+    private final WebhookProvider _webhookProvider;
 
-    public MinecraftMessageMirror(ArrayList<WebhookClient> cluster) {
-        this._cluster = cluster;
-        this._ticker = new Ticker(this._cluster.size());
+    public MinecraftMessageMirror(WebhookProvider webhookProvider) {
+        this._webhookProvider = webhookProvider;
         this._enabled = true;
     }
 
@@ -30,9 +25,7 @@ public class MinecraftMessageMirror implements Listener {
 
     public void close() {
         this.setEnabled(false);
-        for (var hook : this._cluster) {
-            hook.close();
-        }
+        this._webhookProvider.close();
     }
 
     @EventHandler
@@ -77,9 +70,7 @@ public class MinecraftMessageMirror implements Listener {
                 .setAvatarUrl(String.format("https://minotar.net/avatar/%s", username))
                 .build();
 
-        this._cluster.get(this._ticker.getTick())
-                .send(message);
-        this._ticker.tickNext();
+        this._webhookProvider.execute(message);
     }
 
     private void sendSystemMessage(String content) {
@@ -92,8 +83,6 @@ public class MinecraftMessageMirror implements Listener {
                 .setAvatarUrl("https://minotar.net/avatar/Herobrine")
                 .build();
 
-        this._cluster.get(this._ticker.getTick())
-                .send(message);
-        this._ticker.tickNext();
+        this._webhookProvider.execute(message);
     }
 }

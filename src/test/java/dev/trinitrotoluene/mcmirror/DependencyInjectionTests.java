@@ -3,7 +3,6 @@ package dev.trinitrotoluene.mcmirror;
 import dev.trinitrotoluene.mcmirror.util.CircularDependencyException;
 import dev.trinitrotoluene.mcmirror.util.MissingDependencyException;
 import dev.trinitrotoluene.mcmirror.util.ServiceCollection;
-import dev.trinitrotoluene.mcmirror.util.ServiceNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
