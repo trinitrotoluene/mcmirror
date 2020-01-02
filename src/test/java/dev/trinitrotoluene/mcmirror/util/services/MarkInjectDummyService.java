@@ -1,6 +1,6 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.util.services;
 
-import dev.trinitrotoluene.mcmirror.util.Inject;
+import dev.trinitrotoluene.mcmirror.util.services.Inject;
 
 /** @noinspection unused*/
 public final class MarkInjectDummyService {
