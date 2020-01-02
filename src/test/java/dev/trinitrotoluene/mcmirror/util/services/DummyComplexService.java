@@ -1,4 +1,4 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.util.services;
 
 /** @noinspection unused*/
 public final class DummyComplexService {

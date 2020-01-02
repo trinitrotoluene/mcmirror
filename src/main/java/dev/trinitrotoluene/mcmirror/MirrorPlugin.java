@@ -2,7 +2,7 @@ package dev.trinitrotoluene.mcmirror;
 
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
-import dev.trinitrotoluene.mcmirror.util.*;
+import dev.trinitrotoluene.mcmirror.util.services.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,7 +40,7 @@ public class MirrorPlugin extends JavaPlugin {
             dc.bindAndBroadcast();
         }
         catch (ServiceNotFoundException e) {
-            getLogger().severe("Couldn't load ServiceManager!");
+            getLogger().severe("Couldn't load required services!");
         }
 
         registerCommands();

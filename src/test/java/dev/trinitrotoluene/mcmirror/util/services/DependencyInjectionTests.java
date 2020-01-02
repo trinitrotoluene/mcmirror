@@ -1,8 +1,5 @@
-package dev.trinitrotoluene.mcmirror;
+package dev.trinitrotoluene.mcmirror.util.services;
 
-import dev.trinitrotoluene.mcmirror.util.CircularDependencyException;
-import dev.trinitrotoluene.mcmirror.util.MissingDependencyException;
-import dev.trinitrotoluene.mcmirror.util.ServiceCollection;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

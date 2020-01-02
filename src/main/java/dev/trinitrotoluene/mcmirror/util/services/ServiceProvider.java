@@ -1,4 +1,4 @@
-package dev.trinitrotoluene.mcmirror.util;
+package dev.trinitrotoluene.mcmirror.util.services;
 
 import java.util.Map;
 

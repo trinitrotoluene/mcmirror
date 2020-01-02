@@ -1,4 +1,4 @@
-package dev.trinitrotoluene.mcmirror.util;
+package dev.trinitrotoluene.mcmirror.util.services;
 
 /**
  * Represents a generic IoC container capable of resolving service requests

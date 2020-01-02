@@ -1,4 +1,4 @@
-package dev.trinitrotoluene.mcmirror.util;
+package dev.trinitrotoluene.mcmirror.util.services;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
