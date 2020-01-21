@@ -1,8 +1,14 @@
-# This determines the format of Discord messages mirrored to Minecraft.
+# This determines the format of Discord messages mirrored to Minecraft
 # "user" and "message" will be expanded to username and message content respectively.
-# You can use color codes.
+# You can use color codes
 
 format: "&7[D]&f <user> message"
+
+# This determines the format of Minecraft messages mirrored to Discord
+# "message" will be expanded to the message content.
+# You can use markdown
+
+discordformat: "**message**"
 
 # Set the token of the bot account to use for listening to Discord messages.
 # If unset, the plugin will print a console warning- but the Minecraft -> Discord mirroring will work fine,
@@ -10,9 +16,15 @@ format: "&7[D]&f <user> message"
 
 token: "YOUR_TOKEN"
 
+# The guild that the bot should attempt to resolve member data from when sanitizing content
+# If this is not set you'll only get cleaned user and channel mentions rather than having them resolved automatically
+# for you by the Discord -> Minecraft message mirror.
+
+guild: "YOUR_GUILD"
+
 # Provide a list of Webhook URLs (look up how to create these if you don't already know) that the bot will cycle
 # through when posting Minecraft messages to Discord.
-# You can use as many as you want, if you have a high message rate this becomes necessary due to rate-limiting.
+# You can use as many as you want, if you have a high message rate this may become necessary due to rate-limiting.
 
 webhooks:
   - "WEBHOOK_URL"
