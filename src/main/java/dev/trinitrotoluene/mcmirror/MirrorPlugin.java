@@ -1,6 +1,7 @@
 package dev.trinitrotoluene.mcmirror;
 
 import co.aikar.commands.BukkitCommandManager;
+import dev.trinitrotoluene.mcmirror.commands.AdminCommandModule;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
 import dev.trinitrotoluene.mcmirror.util.services.*;
@@ -38,8 +39,10 @@ public class MirrorPlugin extends JavaPlugin {
 
         try {
             BukkitCommandManager manager = this._services.getRequiredService(BukkitCommandManager.class);
+            manager.enableUnstableAPI("help");
             manager.registerDependency(MinecraftMessageMirror.class, _services.getRequiredService(MinecraftMessageMirror.class));
             manager.registerDependency(DiscordMessageMirror.class, _services.getRequiredService(DiscordMessageMirror.class));
+            manager.registerCommand(new AdminCommandModule());
 
             MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
             this.getServer().getPluginManager().registerEvents(mc, this);

@@ -8,7 +8,7 @@ format: "&7[D]&f <user> message"
 # "message" will be expanded to the message content.
 # You can use markdown
 
-discordformat: "**message**"
+formatdiscord: "**message**"
 
 # Set the token of the bot account to use for listening to Discord messages.
 # If unset, the plugin will print a console warning- but the Minecraft -> Discord mirroring will work fine,

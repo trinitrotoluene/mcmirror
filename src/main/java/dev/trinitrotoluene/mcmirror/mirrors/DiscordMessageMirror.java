@@ -41,8 +41,7 @@ public class DiscordMessageMirror {
 
     public void bindAndBroadcast() {
         Bukkit.getScheduler().runTaskAsynchronously(this._plugin, () -> {
-            this._client = new DiscordClientBuilder(Objects.requireNonNull(this._plugin.getConfig().getString("token")))
-                    .build();
+            this._client = new DiscordClientBuilder(this._plugin.getConfig().getString("token")).build();
             this._callback = new DiscordMessageCallback(this._client, this. _plugin);
 
             this._client.getEventDispatcher().on(ReadyEvent.class).subscribe((ready) -> this._plugin.getLogger().info("Discord -> Minecraft online"));
@@ -91,6 +90,5 @@ public class DiscordMessageMirror {
             this._client.logout().block();
 
         this._client = null;
-        this._plugin = null;
     }
 }
