@@ -5,31 +5,6 @@ main: dev.trinitrotoluene.mcmirror.MirrorPlugin
 api-version: 1.14
 description: A no-nonsense and robust Minecraft <-> Discord bridge.
 
-commands:
-  mirror:
-    description: Root command for managing MC Mirror.
-    usage: /mirror help
-  mirrorenable:
-    description: Enable message mirroring.
-    usage: /mirror enable
-    permission: mcmirror.admin
-  mirrordisable:
-    description: Disable message mirroring, leaving the underlying connection with Discord intact. Use this if you're turning the plugin off temporarily.
-    usage: /mirror disable
-    permission: mcmirror.admin
-  mirrorkill:
-    description: Kills the underlying connection to Discord. Useful during Discord outages and for saving resources when the plugin is disabled.
-    usage: /mirror kill
-    permission: mcmirror.admin
-  mirrorconnect:
-    description: Establishes a new connection to Discord.
-    usage: /mirror connect
-    permission: mcmirror.admin
-  mirrorstatus:
-    description: Prints the current status of the Discord connection.
-    usage: /mirror status
-    permission: mcmirror.admin
-
 permissions:
 # Aggregated nodes
   mcmirror.*:

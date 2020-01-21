@@ -28,25 +28,23 @@ public class AdminCommandModule extends BaseCommand {
 
     @Subcommand("enable")
     public void onEnable(CommandSender sender) {
-        if (this.DiscordMirror.getClient().isConnected())
-            this.DiscordMirror.setEnabled(false);
+        this.DiscordMirror.setEnabled(true);
+        this.MinecraftMirror.setEnabled(true);
 
-        this.MinecraftMirror.setEnabled(false);
-        sender.sendMessage(ChatColor.GREEN + "Mirroring disabled.");
+        sender.sendMessage(ChatColor.GREEN + "Mirroring enabled.");
     }
 
     @Subcommand("disable")
     public void onDisable(CommandSender sender) {
-        if (this.DiscordMirror.getClient().isConnected())
-            this.DiscordMirror.setEnabled(true);
+        this.DiscordMirror.setEnabled(false);
+        this.MinecraftMirror.setEnabled(false);
 
-        this.MinecraftMirror.setEnabled(true);
-        sender.sendMessage(ChatColor.GREEN + "Mirroring enabled.");
+        sender.sendMessage(ChatColor.GREEN + "Mirroring disabled.");
     }
 
     @Subcommand("kill")
     public void onKill(CommandSender sender) {
-        if (!this.DiscordMirror.getClient().isConnected()) {
+        if (this.DiscordMirror.getClient() != null && !this.DiscordMirror.getClient().isConnected()) {
             sender.sendMessage(ChatColor.RED + "Already disconnected.");
         }
         else {
@@ -57,15 +55,12 @@ public class AdminCommandModule extends BaseCommand {
 
     @Subcommand("connect")
     public void onConnect(CommandSender sender) {
-        if (this.DiscordMirror.getClient().isConnected()) {
+        if (this.DiscordMirror.getClient() != null) {
             sender.sendMessage(ChatColor.RED + "Already connected or reconnecting.");
         }
         else {
             this.DiscordMirror.bindAndBroadcast();
             sender.sendMessage(ChatColor.GREEN + "Reconnecting...");
-            this.DiscordMirror.getClient().getEventDispatcher().on(ReadyEvent.class).subscribe((ready) -> {
-                Bukkit.getScheduler().runTask(this.Plugin, () -> sender.sendMessage(ChatColor.GREEN + "Connected"));
-            });
         }
     }
 
