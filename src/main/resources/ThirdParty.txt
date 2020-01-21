@@ -1,3 +1,11 @@
+Code in this repository is provided under the GPLv3 license and makes use of interfaces provided by 3rd party packages.
+The license and source for these packages is provided below, and a copy of their licenses is also included.
+
 Third Party Software Used Under License:
 
 - Discord4J (https://github.com/Discord4J/Discord4J) https://github.com/Discord4J/Discord4J/blob/master/LICENSE.txt
+- discord-webhooks (https://github.com/MinnDevelopment/discord-webhooks) https://github.com/MinnDevelopment/discord-webhooks/blob/master/LICENSE
+- commands (https://github.com/aikar/commands) https://github.com/aikar/commands/blob/master/LICENSE
+- bStats-Metrics (https://github.com/Bastian/bStats-Metrics) https://github.com/Bastian/bStats-Metrics/blob/master/LICENSE
+
+Thank you for making projects like these possible!
