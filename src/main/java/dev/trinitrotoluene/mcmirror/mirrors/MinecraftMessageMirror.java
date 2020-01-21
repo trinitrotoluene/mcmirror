@@ -3,6 +3,7 @@ package dev.trinitrotoluene.mcmirror.mirrors;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import dev.trinitrotoluene.mcmirror.WebhookProvider;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -13,9 +14,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class MinecraftMessageMirror implements Listener {
     private volatile boolean _enabled;
     private final WebhookProvider _webhookProvider;
+    private final FileConfiguration _config;
 
-    public MinecraftMessageMirror(WebhookProvider webhookProvider) {
+    public MinecraftMessageMirror(WebhookProvider webhookProvider, FileConfiguration config) {
         this._webhookProvider = webhookProvider;
+        this._config = config;
         this._enabled = true;
     }
 
@@ -66,7 +69,7 @@ public class MinecraftMessageMirror implements Listener {
 
         var message = new WebhookMessageBuilder()
                 .setUsername(username)
-                .setContent(content)
+                .setContent(sanitize(content))
                 .setAvatarUrl(String.format("https://minotar.net/avatar/%s", username))
                 .build();
 
@@ -78,11 +81,22 @@ public class MinecraftMessageMirror implements Listener {
             return;
 
         var message = new WebhookMessageBuilder()
-                .setUsername("System")
-                .setContent(ChatColor.stripColor(String.format("**%s**", content)))
+                .setUsername("Server")
+                .setContent(sanitize(content))
                 .setAvatarUrl("https://minotar.net/avatar/Herobrine")
                 .build();
 
         this._webhookProvider.execute(message);
+    }
+
+    private String sanitize(String content) {
+        var formatString = this._config.getString("formatdiscord");
+        content = ChatColor.stripColor(String.format(formatString != null ?
+                formatString.replace("message", "%s") :
+                "**%s**", content));
+
+        content = content.replace("@", "@\u200b");
+
+        return content;
     }
 }
