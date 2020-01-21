@@ -1,79 +1,77 @@
 package dev.trinitrotoluene.mcmirror;
 
-import club.minnced.discord.webhook.WebhookClient;
+import co.aikar.commands.BukkitCommandManager;
+import dev.trinitrotoluene.mcmirror.commands.AdminCommandModule;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
+import dev.trinitrotoluene.mcmirror.util.services.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Logger;
 
 public class MirrorPlugin extends JavaPlugin {
-    private DiscordMessageMirror DiscordMirror;
-    private MinecraftMessageMirror MinecraftMirror;
-
-    public DiscordMessageMirror getDiscordMessageMirror() {
-        return this.DiscordMirror;
-    }
-
-    public void setDiscordMessageMirror(DiscordMessageMirror value) {
-        this.DiscordMirror = value;
-    }
-
-    public MinecraftMessageMirror getMinecraftMessageMirror() {
-        return this.MinecraftMirror;
-    }
-
-    public void setMinecraftMessageMirror(MinecraftMessageMirror value) {
-        this.MinecraftMirror = value;
-    }
-
-    public List<String> getWhitelistedRoles() {
-        return getConfig().getStringList("roles");
-    }
-
-    public List<String> getWhitelistedChannels() {
-        return getConfig().getStringList("channels");
-    }
+    private IServiceProvider _services;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        var webhookUrls = getConfig().getStringList("webhooks");
+        try {
+            this._services = new ServiceCollection()
+                    .addSingleton(FileConfiguration.class, this.getConfig())
+                    .addSingleton(Logger.class, this.getLogger())
+                    .addSingleton(MinecraftMessageMirror.class)
+                    .addSingleton(DiscordMessageMirror.class)
+                    .addSingleton(WebhookProvider.class)
+                    .addSingleton(MirrorPlugin.class, this)
+                    .addSingleton(CommandListener.class)
+                    .addSingleton(BukkitCommandManager.class, new BukkitCommandManager(this))
+                    .build();
+        }
+        catch (MissingDependencyException e) {
+            getLogger().severe("Failed to resolve a core dependency!");
+        }
+        catch (CircularDependencyException e) {
+            getLogger().severe("A circular dependency was found while attempting to build the service provider.");
+        }
 
-        var hookList = new ArrayList<WebhookClient>();
-        for (var url : webhookUrls)
-            hookList.add(WebhookClient.withUrl(url));
-        this.MinecraftMirror = new MinecraftMessageMirror(hookList);
+        try {
+            BukkitCommandManager manager = this._services.getRequiredService(BukkitCommandManager.class);
+            manager.enableUnstableAPI("help");
+            manager.registerDependency(MinecraftMessageMirror.class, _services.getRequiredService(MinecraftMessageMirror.class));
+            manager.registerDependency(DiscordMessageMirror.class, _services.getRequiredService(DiscordMessageMirror.class));
+            manager.registerCommand(new AdminCommandModule());
 
-        getServer().getPluginManager().registerEvents(this.MinecraftMirror, this);
-        getLogger().info(String.format("Minecraft -> Discord online with %s hooks", webhookUrls.size()));
+            MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
+            this.getServer().getPluginManager().registerEvents(mc, this);
 
-        this.DiscordMirror = new DiscordMessageMirror();
-        this.DiscordMirror.bindAndBroadcast();
-
-        registerCommands();
+            DiscordMessageMirror dc = this._services.getRequiredService(DiscordMessageMirror.class);
+            dc.bindAndBroadcast();
+        }
+        catch (ServiceNotFoundException e) {
+            getLogger().severe("Couldn't load required services!");
+        }
     }
 
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
 
-        if (this.MinecraftMirror != null)
-            this.MinecraftMirror.close();
-        if (this.DiscordMirror != null)
-            this.DiscordMirror.close();
-
-        this.DiscordMirror = null;
-        this.MinecraftMirror = null;
-    }
-
-    private void registerCommands() {
-        var executor = new CommandListener();
-        var completer = new PluginTabCompleter();
-        this.getCommand("mirror").setExecutor(executor);
-        this.getCommand("mirror").setTabCompleter(completer);
+        try {
+            DiscordMessageMirror dc = this._services.getRequiredService(DiscordMessageMirror.class);
+            dc.close();
+            MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
+            mc.close();
+            BukkitCommandManager cm = this._services.getRequiredService(BukkitCommandManager.class);
+            cm.unregisterCommands();
+        }
+        catch (ServiceNotFoundException e) {
+            e.printStackTrace();
+        }
+        finally {
+            this._services = null;
+        }
     }
 }
