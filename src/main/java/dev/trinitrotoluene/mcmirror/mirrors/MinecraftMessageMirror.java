@@ -67,10 +67,15 @@ public class MinecraftMessageMirror implements Listener {
         if (!this._enabled)
             return;
 
+        content = this._config.getString("format.discord.user", "%message%")
+                .replace("%message%", content);
+        var avatarUrl = this._config.getString("webhook.appearance.player.avatar", "https://minotar.net/avatar/%user%")
+                .replace("%user%", username);
+
         var message = new WebhookMessageBuilder()
                 .setUsername(username)
                 .setContent(sanitize(content))
-                .setAvatarUrl(String.format("https://minotar.net/avatar/%s", username))
+                .setAvatarUrl(avatarUrl)
                 .build();
 
         this._webhookProvider.execute(message);
@@ -80,23 +85,23 @@ public class MinecraftMessageMirror implements Listener {
         if (!this._enabled)
             return;
 
+        content = this._config.getString("format.discord.system", "**%message%**")
+            .replace("%message%", content);
+
+        var name = this._config.getString("webhook.appearance.system.name", "Server");
+        var url = this._config.getString("webhook.appearance.system.avatar", "https://minotar.net/avatar/Herobrine");
+
         var message = new WebhookMessageBuilder()
-                .setUsername("Server")
+                .setUsername(name)
                 .setContent(sanitize(content))
-                .setAvatarUrl("https://minotar.net/avatar/Herobrine")
+                .setAvatarUrl(url)
                 .build();
 
         this._webhookProvider.execute(message);
     }
 
     private String sanitize(String content) {
-        var formatString = this._config.getString("formatdiscord");
-        content = ChatColor.stripColor(String.format(formatString != null ?
-                formatString.replace("message", "%s") :
-                "**%s**", content));
-
         content = content.replace("@", "@\u200b");
-
         return content;
     }
 }

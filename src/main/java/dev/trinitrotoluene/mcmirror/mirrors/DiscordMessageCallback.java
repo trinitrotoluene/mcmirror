@@ -40,11 +40,13 @@ public class DiscordMessageCallback implements MessageCallback {
     @Override
     public void onMessage(MessageCreateEvent message) {
         message.getMember().ifPresent(member -> message.getMessage().getContent().ifPresent(content -> {
-            var formatString = Objects.requireNonNull(this._config.getString("format"));
+            var formatString = this._config.getString("format.minecraft.user", "&7[D]&f <%user%> %message%");
             formatString = ChatColor.translateAlternateColorCodes('&', formatString);
+
             String mirroredMessage = formatString
-                    .replace("user", member.getDisplayName())
-                    .replace("message", sanitizeContent(content));
+                    .replace("%user%", member.getDisplayName())
+                    .replace("%message%", sanitizeContent(content));
+
             Bukkit.broadcastMessage(mirroredMessage);
         }));
     }
@@ -58,7 +60,7 @@ public class DiscordMessageCallback implements MessageCallback {
         if (mentionMatcher.find()) {
             content = mentionMatcher.replaceAll(matchResult -> {
                 try {
-                    var guildId = Snowflake.of(this._config.getString("guild"));
+                    var guildId = Snowflake.of(this._config.getString("guild_id"));
                     var userId = Snowflake.of(matchResult.group(1));
                     var member = this._discordClient.getMemberById(guildId, userId).block();
 
@@ -89,7 +91,7 @@ public class DiscordMessageCallback implements MessageCallback {
             content = roleMatcher.replaceAll(matchResult -> {
                 try {
                     var roleId = Snowflake.of(matchResult.group(1));
-                    var guildId = Snowflake.of(this._config.getString("guild"));
+                    var guildId = Snowflake.of(this._config.getString("guild_id"));
                     var role = this._discordClient.getRoleById(guildId, roleId).block();
 
                     return "@" + role.getName();
