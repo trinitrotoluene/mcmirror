@@ -9,6 +9,8 @@ import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
+import discord4j.core.object.presence.Activity;
+import discord4j.core.object.presence.Presence;
 import discord4j.gateway.json.dispatch.MessageCreate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -67,7 +69,10 @@ public class DiscordMessageMirror {
 
             this._client.getEventDispatcher()
                     .on(ReadyEvent.class)
-                    .subscribe((ready) -> this._plugin.getLogger().info("Connected to Discord!"));
+                    .subscribe((ready) -> {
+                        this._plugin.getLogger().info("Connected to Discord!");
+
+                    });
 
             this._client.getEventDispatcher()
                     .on(MessageCreateEvent.class)
@@ -135,5 +140,14 @@ public class DiscordMessageMirror {
         }
 
         return false;
+    }
+
+    public void updateMOTDInPresence() {
+        var onlineCount = Bukkit.getOnlinePlayers().size();
+        var maxPlayerCount = Bukkit.getMaxPlayers();
+        var message = String.format("%s/%s players online", onlineCount, maxPlayerCount);
+        var newPresence = Presence.online(Activity.playing(message));
+
+        this._client.updatePresence(newPresence);
     }
 }

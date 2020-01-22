@@ -3,6 +3,7 @@ package dev.trinitrotoluene.mcmirror;
 import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.commands.AdminCommandModule;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
+import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirrorPresenceListener;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
 import dev.trinitrotoluene.mcmirror.util.services.*;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,7 +27,7 @@ public class MirrorPlugin extends JavaPlugin {
                     .addSingleton(DiscordMessageMirror.class)
                     .addSingleton(WebhookProvider.class)
                     .addSingleton(MirrorPlugin.class, this)
-                    .addSingleton(CommandListener.class)
+                    .addSingleton(DiscordMessageMirrorPresenceListener.class)
                     .addSingleton(BukkitCommandManager.class, new BukkitCommandManager(this))
                     .build();
         }
@@ -46,6 +47,8 @@ public class MirrorPlugin extends JavaPlugin {
 
             MinecraftMessageMirror mc = this._services.getRequiredService(MinecraftMessageMirror.class);
             this.getServer().getPluginManager().registerEvents(mc, this);
+            DiscordMessageMirrorPresenceListener pl = this._services.getRequiredService(DiscordMessageMirrorPresenceListener.class);
+            this.getServer().getPluginManager().registerEvents(pl, this);
 
             DiscordMessageMirror dc = this._services.getRequiredService(DiscordMessageMirror.class);
             dc.bindAndBroadcast();
