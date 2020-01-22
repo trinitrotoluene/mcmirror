@@ -1,5 +1,6 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
+import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import dev.trinitrotoluene.mcmirror.WebhookProvider;
 import org.bukkit.ChatColor;
@@ -91,10 +92,13 @@ public class MinecraftMessageMirror implements Listener {
         var name = this._config.getString("webhook.appearance.system.name", "Server");
         var url = this._config.getString("webhook.appearance.system.avatar", "https://minotar.net/avatar/Herobrine");
 
+        var embed = new WebhookEmbedBuilder()
+                .setDescription(sanitize(content));
+
         var message = new WebhookMessageBuilder()
                 .setUsername(name)
-                .setContent(sanitize(content))
                 .setAvatarUrl(url)
+                .addEmbeds(embed.build())
                 .build();
 
         this._webhookProvider.execute(message);
