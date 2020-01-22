@@ -20,7 +20,7 @@ public final class WebhookProvider {
         this._clients = new ArrayList<>();
         this._logger = logger;
 
-        var webhookUrls = config.getStringList("webhooks");
+        var webhookUrls = config.getStringList("webhook.urls");
         try {
             for (var url : webhookUrls)
                 this._clients.add(WebhookClient.withUrl(url));

@@ -5,11 +5,17 @@ import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Channel;
+import discord4j.core.object.entity.Member;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.Role;
+import discord4j.gateway.json.dispatch.MessageCreate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class DiscordMessageMirror {
     private MirrorPlugin _plugin;
@@ -27,6 +33,17 @@ public class DiscordMessageMirror {
         this._enabled = value;
     }
 
+    public DiscordClient getClient() {
+        return this._client;
+    }
+
+    public void close() {
+        if (this._client != null)
+            this._client.logout().block();
+
+        this._client = null;
+    }
+
     public String getStatus() {
         if (this._client == null)
             return ChatColor.RED + "Client failed to initialise.";
@@ -41,37 +58,30 @@ public class DiscordMessageMirror {
 
     public void bindAndBroadcast() {
         Bukkit.getScheduler().runTaskAsynchronously(this._plugin, () -> {
-            this._client = new DiscordClientBuilder(this._plugin.getConfig().getString("token")).build();
+            var token = this._plugin.getConfig().getString("bot.token");
+            if (token == null)
+                return;
+
+            this._client = new DiscordClientBuilder(token).build();
             this._callback = new DiscordMessageCallback(this._client, this. _plugin);
 
-            this._client.getEventDispatcher().on(ReadyEvent.class).subscribe((ready) -> this._plugin.getLogger().info("Discord -> Minecraft online"));
+            this._client.getEventDispatcher()
+                    .on(ReadyEvent.class)
+                    .subscribe((ready) -> this._plugin.getLogger().info("Connected to Discord!"));
 
             this._client.getEventDispatcher()
                     .on(MessageCreateEvent.class)
-                    .filter(msg -> this._enabled)
+                    .filter(msg -> this._enabled && isValidMessage(msg))
                     .filter(msg -> {
-                        var content = msg.getMessage().getContent().orElse("");
-                        return content.length() > 0 && content.length() <= 500;
-                    })
-                    .filter(msg -> {
-                        var whitelist = this._plugin.getConfig().getStringList("roles");
-                        if (whitelist.size() == 0)
-                            return true;
-                        else
-                            return whitelist.stream().anyMatch(rname -> {
-                                var member = msg.getMember().orElse(null);
-                                if (member == null)
-                                    return false;
-                                else
-                                    return member.getRoleIds().stream().anyMatch(rid -> rid.asString().equals(rname));
-                            });
-                    })
-                    .filter(msg -> {
-                        var whitelist = this._plugin.getConfig().getStringList("channels");
-                        if (whitelist.size() == 0)
-                            return true;
-                        else
-                            return whitelist.stream().anyMatch(cname -> cname.equals(msg.getMessage().getChannelId().asString()));
+                        var channel = msg.getMessage().getChannel().block();
+                        if (isWhitelistedChannel(channel)) {
+                            Optional<Member> member;
+                            if ((member = msg.getMember()).isEmpty())
+                                return false;
+
+                            return isWhitelistedUser(member.get()) || isWhitelistedRole(member.get());
+                        }
+                        return false;
                     })
                     .subscribe(msg -> Bukkit.getScheduler()
                             .runTask(this._plugin, () -> this._callback.onMessage(msg))
@@ -81,14 +91,49 @@ public class DiscordMessageMirror {
         });
     }
 
-    public DiscordClient getClient() {
-        return this._client;
+    private boolean isValidMessage(MessageCreateEvent message) {
+        var content = message.getMessage().getContent().orElse("");
+        return content.length() > 0 && content.length() <= 500;
     }
 
-    public void close() {
-        if (this._client != null)
-            this._client.logout().block();
+    private boolean isWhitelistedUser(Member member) {
+        var whitelist = this._plugin.getConfig().getStringList("whitelist.users");
+        if (whitelist.size() == 0)
+            return false;
 
-        this._client = null;
+        for (var userId : whitelist) {
+            if (userId.equals(member.getId().asString()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean isWhitelistedChannel(Channel channel) {
+        var whitelist = this._plugin.getConfig().getStringList("whitelist.channels");
+        if (whitelist.size() == 0)
+            return false;
+
+        for (var channelId : whitelist) {
+            if (channelId.equals(channel.getId().asString()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private boolean isWhitelistedRole(Member member) {
+        var whitelist = this._plugin.getConfig().getStringList("whitelist.roles");
+        if (whitelist.size() == 0)
+            return false;
+
+        for (var role : member.getRoleIds()) {
+            for (var roleId : whitelist) {
+                if (roleId.equals(role.asString()))
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

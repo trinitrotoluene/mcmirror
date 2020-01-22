@@ -1,43 +1,30 @@
-# This determines the format of Discord messages mirrored to Minecraft
-# "user" and "message" will be expanded to username and message content respectively.
-# You can use color codes
+guild_id: "YOUR_GUILD"
 
-format: "&7[D]&f <user> message"
+bot:
+  token: "YOUR_TOKEN"
 
-# This determines the format of Minecraft messages mirrored to Discord
-# "message" will be expanded to the message content.
-# You can use markdown
+format:
+  minecraft:
+    user: "&7[D]&f <%user%> %message%"
+  discord:
+    user: "%message%"
+    system: "**%message%**"
 
-formatdiscord: "**message**"
+webhook:
+  urls:
+    - "WEBHOOK_URL"
+  appearance:
+    system:
+      name: "Server"
+      avatar: "https://minotar.net/avatar/Herobrine"
+    player:
+      name: "%user%"
+      avatar: "https://minotar.net/avatar/%user%"
 
-# Set the token of the bot account to use for listening to Discord messages.
-# If unset, the plugin will print a console warning- but the Minecraft -> Discord mirroring will work fine,
-# provided you supplied a valid Webhook URL.
-
-token: "YOUR_TOKEN"
-
-# The guild that the bot should attempt to resolve member data from when sanitizing content
-# If this is not set you'll only get cleaned user and channel mentions rather than having them resolved automatically
-# for you by the Discord -> Minecraft message mirror.
-
-guild: "YOUR_GUILD"
-
-# Provide a list of Webhook URLs (look up how to create these if you don't already know) that the bot will cycle
-# through when posting Minecraft messages to Discord.
-# You can use as many as you want, if you have a high message rate this may become necessary due to rate-limiting.
-
-webhooks:
-  - "WEBHOOK_URL"
-
-# List all *Discord* role IDs that you'd like to have access to the mirroring feature.
-# Leave this empty and @everyone will be mirrored automatically.
-# If you want to restrict Minecraft -> Discord mirroring, use the mcmirror.mirror permission. (Defaults to true)
-
-roles:
-  # - "652853083176697866"
-
-# List all *Discord* channels that you'd like to mirror messages from to Minecraft.
-# By default the bot will mirror messages from all channels it has access to, which is often undesirable behaviour.
-
-channels:
-  # - "652853083176696794"
+whitelist:
+  users:
+    # - "652853083176697866"
+  roles:
+    # - "652853083176697866"
+  channels:
+    # - "652853083176697866"

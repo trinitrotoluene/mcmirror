@@ -1,18 +1,16 @@
 name: McMirror
-version: 3.0.0
+version: 3.0.0-SNAPSHOT
 author: twonglebat
 main: dev.trinitrotoluene.mcmirror.MirrorPlugin
 api-version: 1.14
 description: A no-nonsense and robust Minecraft <-> Discord bridge.
 
 permissions:
-# Aggregated nodes
   mcmirror.*:
     children:
       - mcmirror.admin
     default: op
   mcmirror.admin:
     default: op
-# Public nodes
   mcmirror.mirror:
     default: true
