@@ -71,7 +71,7 @@ public class DiscordMessageMirror {
                     .on(ReadyEvent.class)
                     .subscribe((ready) -> {
                         this._plugin.getLogger().info("Connected to Discord!");
-
+                        updateMOTDInPresence();
                     });
 
             this._client.getEventDispatcher()
@@ -104,7 +104,7 @@ public class DiscordMessageMirror {
     private boolean isWhitelistedUser(Member member) {
         var whitelist = this._plugin.getConfig().getStringList("whitelist.users");
         if (whitelist.size() == 0)
-            return false;
+            return true;
 
         for (var userId : whitelist) {
             if (userId.equals(member.getId().asString()))
@@ -117,7 +117,7 @@ public class DiscordMessageMirror {
     private boolean isWhitelistedChannel(Channel channel) {
         var whitelist = this._plugin.getConfig().getStringList("whitelist.channels");
         if (whitelist.size() == 0)
-            return false;
+            return true;
 
         for (var channelId : whitelist) {
             if (channelId.equals(channel.getId().asString()))
@@ -130,7 +130,7 @@ public class DiscordMessageMirror {
     private boolean isWhitelistedRole(Member member) {
         var whitelist = this._plugin.getConfig().getStringList("whitelist.roles");
         if (whitelist.size() == 0)
-            return false;
+            return true;
 
         for (var role : member.getRoleIds()) {
             for (var roleId : whitelist) {
@@ -148,6 +148,6 @@ public class DiscordMessageMirror {
         var message = String.format("%s/%s players online", onlineCount, maxPlayerCount);
         var newPresence = Presence.online(Activity.playing(message));
 
-        this._client.updatePresence(newPresence);
+        this._client.updatePresence(newPresence).block();
     }
 }
