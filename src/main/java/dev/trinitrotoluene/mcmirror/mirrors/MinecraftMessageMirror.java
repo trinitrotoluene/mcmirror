@@ -3,14 +3,14 @@ package dev.trinitrotoluene.mcmirror.mirrors;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import dev.trinitrotoluene.mcmirror.WebhookProvider;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.event.server.BroadcastMessageEvent;
 
 public class MinecraftMessageMirror implements Listener {
     private volatile boolean _enabled;
@@ -38,6 +38,24 @@ public class MinecraftMessageMirror implements Listener {
             return;
 
         sendMessage(playerChatEvent.getPlayer().getDisplayName(), playerChatEvent.getMessage());
+    }
+
+    @EventHandler
+    public void onKick(PlayerKickEvent kickEvent) {
+        sendSystemMessage(kickEvent.getPlayer().getName() + " was kicked from the server.");
+    }
+
+    @EventHandler
+    public void onCommandPreprocess(PlayerCommandPreprocessEvent preprocessEvent) {
+        if (!preprocessEvent.getPlayer().hasPermission("mcmirror.mirror"))
+            return;
+
+        var command = preprocessEvent.getMessage().substring(1).split(" ", 2);
+        if (command.length != 2) return;
+        /* I hate this */
+        if (command[0].equals("me")) {
+            sendMessage(preprocessEvent.getPlayer().getName(), "\\* " + preprocessEvent.getPlayer().getName() + " " + command[1]);
+        }
     }
 
     @EventHandler

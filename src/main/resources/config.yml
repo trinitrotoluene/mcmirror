@@ -2,6 +2,7 @@ guild_id: "YOUR_GUILD"
 
 bot:
   token: "YOUR_TOKEN"
+  status: "%version% %online%/%maxonline% players online"
 
 format:
   minecraft:
