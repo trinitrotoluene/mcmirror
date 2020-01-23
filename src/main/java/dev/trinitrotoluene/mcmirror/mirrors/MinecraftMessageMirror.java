@@ -105,6 +105,7 @@ public class MinecraftMessageMirror implements Listener {
     }
 
     private String sanitize(String content) {
+        content = ChatColor.stripColor(content);
         content = content.replace("@", "@\u200b");
         return content;
     }
