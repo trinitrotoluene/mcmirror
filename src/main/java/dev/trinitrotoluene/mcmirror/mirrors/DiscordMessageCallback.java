@@ -1,6 +1,9 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
+import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
+import dev.trinitrotoluene.mcmirror.util.AttachmentMessageGenerator;
+import dev.trinitrotoluene.mcmirror.util.MessageBroadcaster;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Channel;
@@ -10,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.data.type.Snow;
 import org.bukkit.block.structure.Mirror;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,23 +36,25 @@ public class DiscordMessageCallback implements MessageCallback {
     private final DiscordClient _discordClient;
 
     DiscordMessageCallback(DiscordClient discordClient, MirrorPlugin plugin) {
-        _discordClient = discordClient;
+        this._discordClient = discordClient;
         this._plugin = plugin;
         this._config = this._plugin.getConfig();
     }
 
     @Override
     public void onMessage(MessageCreateEvent message) {
-        message.getMember().ifPresent(member -> message.getMessage().getContent().ifPresent(content -> {
+        message.getMember().ifPresent(member -> {
             var formatString = this._config.getString("format.minecraft.user", "&7[D]&f <%user%> %message%");
             formatString = ChatColor.translateAlternateColorCodes('&', formatString);
-
             String mirroredMessage = formatString
                     .replace("%user%", member.getDisplayName())
-                    .replace("%message%", sanitizeContent(content));
+                    .replace("%message%", sanitizeContent(message.getMessage().getContent().orElse("")));
 
-            Bukkit.broadcastMessage(mirroredMessage);
-        }));
+            MessageBroadcaster.broadcast(mirroredMessage);
+            for (var attachment : message.getMessage().getAttachments()) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), AttachmentMessageGenerator.createTellRawCommand(attachment.getFilename(), attachment.getUrl()));
+            }
+        });
     }
 
     private String sanitizeContent(String content) {

@@ -1,6 +1,8 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
+import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
+import dev.trinitrotoluene.mcmirror.util.MinecraftVersion;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
@@ -98,7 +100,7 @@ public class DiscordMessageMirror {
 
     private boolean isValidMessage(MessageCreateEvent message) {
         var content = message.getMessage().getContent().orElse("");
-        return content.length() > 0 && content.length() <= 500;
+        return (content.length() > 0 || message.getMessage().getAttachments().size() > 0) && content.length() <= 500;
     }
 
     private boolean isWhitelistedUser(Member member) {
@@ -143,11 +145,22 @@ public class DiscordMessageMirror {
     }
 
     public void updateMOTDInPresence() {
-        var onlineCount = Bukkit.getOnlinePlayers().size();
-        var maxPlayerCount = Bukkit.getMaxPlayers();
-        var message = String.format("%s/%s players online", onlineCount, maxPlayerCount);
+        var presenceFormat = this._plugin.getConfig().getString("bot.status", "%version% %online%/%maxonline%");
+        var message = insertPresenceVariables(presenceFormat);
         var newPresence = Presence.online(Activity.playing(message));
 
         this._client.updatePresence(newPresence).block();
+    }
+
+    private String insertPresenceVariables(String presenceFormat) {
+        var onlineCount = Bukkit.getOnlinePlayers().size();
+        var maxPlayerCount = Bukkit.getMaxPlayers();
+        var version = MinecraftVersion.getVersion().getString();
+        presenceFormat = presenceFormat.replace("%online%", Integer.toString(onlineCount));
+        presenceFormat = presenceFormat.replace("%maxonline%", Integer.toString(maxPlayerCount));
+        presenceFormat = presenceFormat.replace("%motd%", Bukkit.getMotd());
+        presenceFormat = presenceFormat.replace("%version%", version);
+
+        return presenceFormat;
     }
 }
