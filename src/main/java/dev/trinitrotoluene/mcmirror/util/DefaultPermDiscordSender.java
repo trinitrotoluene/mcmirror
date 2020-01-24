@@ -3,11 +3,12 @@ package dev.trinitrotoluene.mcmirror.util;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationAbandonedEvent;
-import org.bukkit.permissions.*;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,16 +16,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DefaultPermConsoleSender implements ConsoleCommandSender {
+public class DefaultPermDiscordSender implements RemoteConsoleCommandSender {
     private final Set<Permission> _perms;
     private final MinecraftMessageMirror _minecraftMirror;
 
-    public DefaultPermConsoleSender(MinecraftMessageMirror minecraftMirror, FileConfiguration config) {
+    public DefaultPermDiscordSender(MinecraftMessageMirror minecraftMirror, FileConfiguration config) {
         this._minecraftMirror = minecraftMirror;
 
         var perms = new HashSet<Permission>();
 
-        var section = config.getStringList("permissions.default");
+        var section = config.getStringList("remote-execution.permissions.default");
         if (section.size() > 0) {
             for (var permName : section) {
                 var perm = new Permission(permName, PermissionDefault.TRUE);
@@ -33,10 +34,11 @@ public class DefaultPermConsoleSender implements ConsoleCommandSender {
         }
 
         this._perms = perms;
+    }
 
-        for (var perm : _perms) {
-            Bukkit.getLogger().info(String.format("%s: %s", perm.getName(), perm.getDefault().getValue(false)));
-        }
+    @Override
+    public @NotNull String getName() {
+        return "Discord-User";
     }
 
     @Override
@@ -80,23 +82,18 @@ public class DefaultPermConsoleSender implements ConsoleCommandSender {
     }
 
     @Override
-    public void sendRawMessage(@NotNull String s) {
-        this._minecraftMirror.sendSystemMessage(s);
-    }
-
-    @Override
     public boolean isOp() {
         return false;
     }
 
     @Override
     public void sendMessage(@NotNull String s) {
-        sendRawMessage(s);
+        this._minecraftMirror.sendSystemMessage(s);
     }
 
     @Override
     public void sendMessage(@NotNull String[] strings) {
-        sendRawMessage(String.join("", strings));
+        sendMessage(String.join("", strings));
     }
 
     @Override
@@ -140,35 +137,8 @@ public class DefaultPermConsoleSender implements ConsoleCommandSender {
     }
 
     @Override
-    public @NotNull String getName() {
-        return "dev.trinitrotoluene.mcmirror.DefaultPermConsoleSender";
-    }
-
-    @Override
     public @NotNull Spigot spigot() {
         return null;
-    }
-
-    @Override
-    public boolean isConversing() {
-        return false;
-    }
-
-    @Override
-    public void acceptConversationInput(@NotNull String s) {
-    }
-
-    @Override
-    public boolean beginConversation(@NotNull Conversation conversation) {
-        return false;
-    }
-
-    @Override
-    public void abandonConversation(@NotNull Conversation conversation) {
-    }
-
-    @Override
-    public void abandonConversation(@NotNull Conversation conversation, @NotNull ConversationAbandonedEvent conversationAbandonedEvent) {
     }
 
     @Override

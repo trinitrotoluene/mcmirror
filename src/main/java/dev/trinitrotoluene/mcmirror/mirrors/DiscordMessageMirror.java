@@ -1,8 +1,6 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
-import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
-import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
 import dev.trinitrotoluene.mcmirror.util.MinecraftVersion;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -10,16 +8,12 @@ import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.Role;
 import discord4j.core.object.presence.Activity;
 import discord4j.core.object.presence.Presence;
-import discord4j.gateway.json.dispatch.MessageCreate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class DiscordMessageMirror {
