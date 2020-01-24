@@ -1,11 +1,6 @@
 package dev.trinitrotoluene.mcmirror;
 
 import co.aikar.commands.BukkitCommandManager;
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
 import dev.trinitrotoluene.mcmirror.commands.AdminCommandModule;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageCallback;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
@@ -13,7 +8,6 @@ import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirrorPresenceListener
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
 import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
 import dev.trinitrotoluene.mcmirror.util.services.*;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;

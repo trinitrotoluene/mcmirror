@@ -3,6 +3,9 @@ guild_id: "YOUR_GUILD"
 bot:
   token: "YOUR_TOKEN"
   status: "%version% %online%/%maxonline% players online"
+  prefix: "mc/"
+  modules:
+    remote-execution: true
 
 format:
   minecraft:
@@ -32,4 +35,6 @@ whitelist:
 
 permissions:
   default:
-    bukkit.command.tps:
+    - "bukkit.command.tps"
+    - "bukkit.command.plugins"
+    - "bukkit.command.version"
