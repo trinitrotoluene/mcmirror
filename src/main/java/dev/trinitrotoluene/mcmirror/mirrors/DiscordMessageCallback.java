@@ -46,8 +46,9 @@ public class DiscordMessageCallback implements MessageCallback {
     public void onMessage(MessageCreateEvent message) {
         message.getMember().ifPresent(member -> {
             String content;
-            if ((content = message.getMessage().getContent().orElse("")).startsWith("/")) { // todo: configurable
-                Bukkit.dispatchCommand(this._defaultSender, content.substring(1));
+            var prefix = this._config.getString("bot.prefix", "mc/");
+            if (this._config.getBoolean("bot.modules.remote-execution", false) && (content = message.getMessage().getContent().orElse("")).startsWith(prefix)) {
+                Bukkit.dispatchCommand(this._defaultSender, content.substring(prefix.length()));
                 return;
             }
 

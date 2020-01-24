@@ -7,10 +7,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.permissions.*;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,15 +23,20 @@ public class DefaultPermConsoleSender implements ConsoleCommandSender {
         this._minecraftMirror = minecraftMirror;
 
         var perms = new HashSet<Permission>();
-        perms.addAll(Bukkit.getPluginManager().getDefaultPermissions(false));
 
-        var section = config.getConfigurationSection("permissions.default");
-        if (section != null) {
-            var values = Permission.loadPermissions(section.getValues(true), "permission %s is invalid", PermissionDefault.TRUE);
-            perms.addAll(values);
+        var section = config.getStringList("permissions.default");
+        if (section.size() > 0) {
+            for (var permName : section) {
+                var perm = new Permission(permName, PermissionDefault.TRUE);
+                perms.add(perm);
+            }
         }
 
         this._perms = perms;
+
+        for (var perm : _perms) {
+            Bukkit.getLogger().info(String.format("%s: %s", perm.getName(), perm.getDefault().getValue(false)));
+        }
     }
 
     @Override
