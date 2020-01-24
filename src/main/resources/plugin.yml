@@ -1,5 +1,5 @@
 name: McMirror
-version: 3.0.0-SNAPSHOT
+version: 3.0.0
 author: twonglebat
 main: dev.trinitrotoluene.mcmirror.MirrorPlugin
 api-version: 1.14
