@@ -42,7 +42,7 @@ public class DiscordMessageCallback implements MessageCallback {
     public void onMessage(MessageCreateEvent message) {
         message.getMember().ifPresent(member -> {
             String content;
-            var prefix = this._config.getString("bot.prefix", "mc/");
+            var prefix = this._config.getString("remote-execution.prefix", "mc/");
             if (this._config.getBoolean("bot.modules.remote-execution", false) && (content = message.getMessage().getContent().orElse("")).startsWith(prefix)) {
                 CommandSender sender;
                 var opRoleId = this._config.getString("remote-execution.op_role_id");
