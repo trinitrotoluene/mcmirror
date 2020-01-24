@@ -29,3 +29,7 @@ whitelist:
     # - "652853083176697866"
   channels:
     # - "652853083176697866"
+
+permissions:
+  default:
+    bukkit.command.tps:

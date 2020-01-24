@@ -82,7 +82,7 @@ public class MinecraftMessageMirror implements Listener {
         sendSystemMessage(playerQuitEvent.getQuitMessage());
     }
 
-    private void sendMessage(String username, String content) {
+    public void sendMessage(String username, String content) {
         if (!this._enabled)
             return;
 
@@ -100,7 +100,7 @@ public class MinecraftMessageMirror implements Listener {
         this._webhookProvider.execute(message);
     }
 
-    private void sendSystemMessage(String content) {
+    public void sendSystemMessage(String content) {
         if (!this._enabled)
             return;
 

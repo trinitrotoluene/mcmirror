@@ -1,11 +1,19 @@
 package dev.trinitrotoluene.mcmirror;
 
 import co.aikar.commands.BukkitCommandManager;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 import dev.trinitrotoluene.mcmirror.commands.AdminCommandModule;
+import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageCallback;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirrorPresenceListener;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
+import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
 import dev.trinitrotoluene.mcmirror.util.services.*;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,7 +26,7 @@ public class MirrorPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
+        /* Service configuration */
         try {
             this._services = new ServiceCollection()
                     .addSingleton(FileConfiguration.class, this.getConfig())
@@ -29,6 +37,8 @@ public class MirrorPlugin extends JavaPlugin {
                     .addSingleton(MirrorPlugin.class, this)
                     .addSingleton(DiscordMessageMirrorPresenceListener.class)
                     .addSingleton(BukkitCommandManager.class, new BukkitCommandManager(this))
+                    .addSingleton(DiscordMessageCallback.class)
+                    .addSingleton(DefaultPermConsoleSender.class)
                     .build();
         }
         catch (MissingDependencyException e) {
@@ -37,7 +47,7 @@ public class MirrorPlugin extends JavaPlugin {
         catch (CircularDependencyException e) {
             getLogger().severe("A circular dependency was found while attempting to build the service provider.");
         }
-
+        /* Service init */
         try {
             BukkitCommandManager manager = this._services.getRequiredService(BukkitCommandManager.class);
             manager.enableUnstableAPI("help");
@@ -60,6 +70,7 @@ public class MirrorPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        /* Teardown */
         HandlerList.unregisterAll(this);
 
         try {
