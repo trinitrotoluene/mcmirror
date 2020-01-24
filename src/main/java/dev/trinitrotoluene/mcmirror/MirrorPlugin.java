@@ -6,7 +6,8 @@ import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageCallback;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirror;
 import dev.trinitrotoluene.mcmirror.mirrors.DiscordMessageMirrorPresenceListener;
 import dev.trinitrotoluene.mcmirror.mirrors.MinecraftMessageMirror;
-import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
+import dev.trinitrotoluene.mcmirror.util.DefaultPermDiscordSender;
+import dev.trinitrotoluene.mcmirror.util.OppedDiscordSender;
 import dev.trinitrotoluene.mcmirror.util.services.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
@@ -32,14 +33,17 @@ public class MirrorPlugin extends JavaPlugin {
                     .addSingleton(DiscordMessageMirrorPresenceListener.class)
                     .addSingleton(BukkitCommandManager.class, new BukkitCommandManager(this))
                     .addSingleton(DiscordMessageCallback.class)
-                    .addSingleton(DefaultPermConsoleSender.class)
+                    .addSingleton(DefaultPermDiscordSender.class)
+                    .addSingleton(OppedDiscordSender.class)
                     .build();
         }
         catch (MissingDependencyException e) {
             getLogger().severe("Failed to resolve a core dependency!");
+            return;
         }
         catch (CircularDependencyException e) {
             getLogger().severe("A circular dependency was found while attempting to build the service provider.");
+            return;
         }
         /* Service init */
         try {

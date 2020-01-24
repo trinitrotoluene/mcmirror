@@ -33,8 +33,10 @@ whitelist:
   channels:
     # - "652853083176697866"
 
-permissions:
-  default:
-    - "bukkit.command.tps"
-    - "bukkit.command.plugins"
-    - "bukkit.command.version"
+remote-execution:
+  op_role_id: # "YOUR_ADMIN_ROLE_ID"
+  permissions:
+    default:
+      - "bukkit.command.tps"
+      - "bukkit.command.plugins"
+      - "bukkit.command.version"

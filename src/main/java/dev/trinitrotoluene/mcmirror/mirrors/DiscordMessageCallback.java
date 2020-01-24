@@ -1,25 +1,19 @@
 package dev.trinitrotoluene.mcmirror.mirrors;
 
-import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
 import dev.trinitrotoluene.mcmirror.util.AttachmentMessageGenerator;
-import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
+import dev.trinitrotoluene.mcmirror.util.DefaultPermDiscordSender;
 import dev.trinitrotoluene.mcmirror.util.MessageBroadcaster;
+import dev.trinitrotoluene.mcmirror.util.OppedDiscordSender;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.Channel;
 import discord4j.core.object.entity.TextChannel;
 import discord4j.core.object.util.Snowflake;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.block.data.type.Snow;
-import org.bukkit.block.structure.Mirror;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Objects;
-import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 public class DiscordMessageCallback implements MessageCallback {
@@ -33,12 +27,14 @@ public class DiscordMessageCallback implements MessageCallback {
     private static final Pattern rolePattern = Pattern.compile(roleMentionRegex);
 
     private final MirrorPlugin _plugin;
-    private final DefaultPermConsoleSender _defaultSender;
+    private final DefaultPermDiscordSender _defaultSender;
     private final FileConfiguration _config;
+    private final OppedDiscordSender _oppedSender;
 
-    public DiscordMessageCallback(MirrorPlugin plugin, DefaultPermConsoleSender defaultSender) {
+    public DiscordMessageCallback(MirrorPlugin plugin, DefaultPermDiscordSender defaultSender, OppedDiscordSender oppedSender) {
         this._plugin = plugin;
         this._defaultSender = defaultSender;
+        this._oppedSender = oppedSender;
         this._config = this._plugin.getConfig();
     }
 
@@ -48,7 +44,16 @@ public class DiscordMessageCallback implements MessageCallback {
             String content;
             var prefix = this._config.getString("bot.prefix", "mc/");
             if (this._config.getBoolean("bot.modules.remote-execution", false) && (content = message.getMessage().getContent().orElse("")).startsWith(prefix)) {
-                Bukkit.dispatchCommand(this._defaultSender, content.substring(prefix.length()));
+                CommandSender sender;
+                var opRoleId = this._config.getString("remote-execution.op_role_id");
+                if (opRoleId != null && member.getRoleIds().contains(Snowflake.of(opRoleId))) {
+                    sender = this._oppedSender;
+                }
+                else {
+                    sender = this._defaultSender;
+                }
+
+                Bukkit.dispatchCommand(sender, content.substring(prefix.length()));
                 return;
             }
 
