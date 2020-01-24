@@ -2,6 +2,7 @@ package dev.trinitrotoluene.mcmirror.mirrors;
 
 import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
+import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
 import dev.trinitrotoluene.mcmirror.util.MinecraftVersion;
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
@@ -28,7 +29,8 @@ public class DiscordMessageMirror {
 
     private MessageCallback _callback;
 
-    public DiscordMessageMirror() {
+    public DiscordMessageMirror(DiscordMessageCallback callback) {
+        this._callback = callback;
         this._enabled = true;
         this._plugin = JavaPlugin.getPlugin(MirrorPlugin.class);
     }
@@ -67,8 +69,6 @@ public class DiscordMessageMirror {
                 return;
 
             this._client = new DiscordClientBuilder(token).build();
-            this._callback = new DiscordMessageCallback(this._client, this. _plugin);
-
             this._client.getEventDispatcher()
                     .on(ReadyEvent.class)
                     .subscribe((ready) -> {

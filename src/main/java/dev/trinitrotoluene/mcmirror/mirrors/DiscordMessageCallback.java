@@ -3,6 +3,7 @@ package dev.trinitrotoluene.mcmirror.mirrors;
 import co.aikar.commands.BukkitCommandManager;
 import dev.trinitrotoluene.mcmirror.MirrorPlugin;
 import dev.trinitrotoluene.mcmirror.util.AttachmentMessageGenerator;
+import dev.trinitrotoluene.mcmirror.util.DefaultPermConsoleSender;
 import dev.trinitrotoluene.mcmirror.util.MessageBroadcaster;
 import discord4j.core.DiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -32,23 +33,29 @@ public class DiscordMessageCallback implements MessageCallback {
     private static final Pattern rolePattern = Pattern.compile(roleMentionRegex);
 
     private final MirrorPlugin _plugin;
+    private final DefaultPermConsoleSender _defaultSender;
     private final FileConfiguration _config;
-    private final DiscordClient _discordClient;
 
-    DiscordMessageCallback(DiscordClient discordClient, MirrorPlugin plugin) {
-        this._discordClient = discordClient;
+    public DiscordMessageCallback(MirrorPlugin plugin, DefaultPermConsoleSender defaultSender) {
         this._plugin = plugin;
+        this._defaultSender = defaultSender;
         this._config = this._plugin.getConfig();
     }
 
     @Override
     public void onMessage(MessageCreateEvent message) {
         message.getMember().ifPresent(member -> {
+            String content;
+            if ((content = message.getMessage().getContent().orElse("")).startsWith("/")) { // todo: configurable
+                Bukkit.dispatchCommand(this._defaultSender, content.substring(1));
+                return;
+            }
+
             var formatString = this._config.getString("format.minecraft.user", "&7[D]&f <%user%> %message%");
             formatString = ChatColor.translateAlternateColorCodes('&', formatString);
             String mirroredMessage = formatString
                     .replace("%user%", member.getDisplayName())
-                    .replace("%message%", sanitizeContent(message.getMessage().getContent().orElse("")));
+                    .replace("%message%", sanitizeContent(message.getClient(), message.getMessage().getContent().orElse("")));
 
             MessageBroadcaster.broadcast(mirroredMessage);
             for (var attachment : message.getMessage().getAttachments()) {
@@ -57,7 +64,7 @@ public class DiscordMessageCallback implements MessageCallback {
         });
     }
 
-    private String sanitizeContent(String content) {
+    private String sanitizeContent(DiscordClient client, String content) {
         var emoteMatcher = emotePattern.matcher(content);
         if (emoteMatcher.find())
             content = emoteMatcher.replaceAll(matchResult -> matchResult.group(1));
@@ -68,7 +75,7 @@ public class DiscordMessageCallback implements MessageCallback {
                 try {
                     var guildId = Snowflake.of(this._config.getString("guild_id"));
                     var userId = Snowflake.of(matchResult.group(1));
-                    var member = this._discordClient.getMemberById(guildId, userId).block();
+                    var member = client.getMemberById(guildId, userId).block();
 
                     return "@" + member.getDisplayName();
                 }
@@ -83,7 +90,7 @@ public class DiscordMessageCallback implements MessageCallback {
             content = channelMatcher.replaceAll(matchResult -> {
                 try {
                     var channelId = Snowflake.of(matchResult.group(1));
-                    var channel = (TextChannel)this._discordClient.getChannelById(channelId).block();
+                    var channel = (TextChannel)client.getChannelById(channelId).block();
                     return "#" + channel.getName();
                 }
                 catch (Exception e) {
@@ -98,7 +105,7 @@ public class DiscordMessageCallback implements MessageCallback {
                 try {
                     var roleId = Snowflake.of(matchResult.group(1));
                     var guildId = Snowflake.of(this._config.getString("guild_id"));
-                    var role = this._discordClient.getRoleById(guildId, roleId).block();
+                    var role = client.getRoleById(guildId, roleId).block();
 
                     return "@" + role.getName();
                 }
